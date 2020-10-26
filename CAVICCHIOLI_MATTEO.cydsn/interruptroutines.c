@@ -14,12 +14,8 @@
 #include "project.h"
 #include "stdio.h"
 
-int32 bright32; //
-uint16 bright16;
+int32 bright32;
 int32 intensity32;
-//uint16 intensity16;
-//static int8 brightness_mv;
-//static uint8 intensity;
 
 CY_ISR(Custom_UART_ISR)
 {
@@ -43,6 +39,7 @@ CY_ISR(Custom_UART_ISR)
 CY_ISR_PROTO(Custom_ADC_ISR)
 {
     TIMER_ReadStatusRegister();
+    adc_clock = 1;
     switch(uart_status)
     {
         case UART_RX_START:
@@ -50,30 +47,40 @@ CY_ISR_PROTO(Custom_ADC_ISR)
             MUX_Select(PHOTORESISTOR);
             ADC_StartConvert();
             bright32 = ADC_Read32();
-            if (bright32 > 65535)
+            if (bright32 > 65535)    
                 bright32 = 65535;
             if (bright32 < 0)
                 bright32 = 0;
-            bright16 = bright32 & 0xFFFF;
-            if (bright16 < 30000)
+            DataBuffer[BRIGHT_MSB] = bright32 >> 8;
+            DataBuffer[BRIGHT_LSB] = bright32 & 0xFF;
+            if (bright32 < THRESHOLD)
             {
                 ADC_StopConvert();
                 MUX_Select(POTENTIOMETER);
                 ADC_StartConvert();
                 intensity32 = ADC_Read32();
+                
                 if (intensity32 > 65535)
                     intensity32 = 65535;
                 if (intensity32 < 0)
                     intensity32 = 0;
-                //intensity16 = intensity32 & 0xFFFF;
-                PWM_WriteCompare((intensity32 & 0xFFFF)/257);
+                
+                PWM_WriteCompare((intensity32)/257);
+                DataBuffer[POT_MSB] = intensity32 >> 8;
+                DataBuffer[POT_LSB] = intensity32 & 0xFF;
+  
             }
             else
-            PWM_WriteCompare(0);
+            {
+                DataBuffer[POT_MSB] = 0x00;
+                DataBuffer[POT_LSB] = 0x00;
+                PWM_WriteCompare(0);
+                
+            }
             break;
+
         case UART_RX_STOP:
             PWM_WriteCompare(0);
-           
             break;
     }
     

@@ -13,7 +13,7 @@
 #include "interruptroutines.h"
 
 volatile uint8 status = UART_RX_STOP;
-volatile uint16 adc_clock = ADC_ENABLE;
+volatile uint8 adc_clock = ADC_ENABLE;
 
 int main(void)
 {
@@ -26,13 +26,19 @@ int main(void)
     TIMER_Start();
     ISR_UART_StartEx(Custom_UART_ISR);
     ISR_TIMER_StartEx(Custom_ADC_ISR);
-
-
+    
+    DataBuffer[0] = 0xA0;
+    DataBuffer[TRANSMIT_BUFFER_SIZE-1] = 0xC0;
+    DataBuffer[T_HOLD_MSB] = THRESHOLD_MSB;
+    DataBuffer[T_HOLD_LSB] = THRESHOLD_LSB;
+    
     for(;;)
     {
-        
-        
-
+        if(uart_status && adc_clock)
+        {
+            UART_PutArray(DataBuffer,TRANSMIT_BUFFER_SIZE);
+            adc_clock = 0;
+        }
     }
 }
 
