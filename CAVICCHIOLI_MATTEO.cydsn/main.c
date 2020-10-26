@@ -12,8 +12,12 @@
 #include "project.h"
 #include "interruptroutines.h"
 
-volatile uint8 status = UART_RX_STOP;
-volatile uint8 adc_clock = ADC_ENABLE;
+//volatile uint8 status = UART_RX_STOP;
+//volatile uint8 adc_clock = ADC_ENABLE;
+//uint8 DataBuffer[TRANSMIT_BUFFER_SIZE];
+//int32 bright32 = 0;
+//int32 intensity32 = 0;
+
 
 int main(void)
 {
@@ -36,6 +40,10 @@ int main(void)
     {
         if(uart_status && adc_clock)
         {
+            DataBuffer[BRIGHT_MSB] = bright32 >88;
+            DataBuffer[BRIGHT_LSB] = bright32 & 0xFF;
+            DataBuffer[POT_MSB] = intensity32 >> 8;
+            DataBuffer[POT_LSB] = intensity32 & 0xFF;
             UART_PutArray(DataBuffer,TRANSMIT_BUFFER_SIZE);
             adc_clock = 0;
         }

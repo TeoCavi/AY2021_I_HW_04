@@ -14,9 +14,6 @@
 #include "project.h"
 #include "stdio.h"
 
-int32 bright32;
-int32 intensity32;
-
 CY_ISR(Custom_UART_ISR)
 {
     uint8 recived = UART_ReadRxData();
@@ -51,8 +48,8 @@ CY_ISR_PROTO(Custom_ADC_ISR)
                 bright32 = 65535;
             if (bright32 < 0)
                 bright32 = 0;
-            DataBuffer[BRIGHT_MSB] = bright32 >> 8;
-            DataBuffer[BRIGHT_LSB] = bright32 & 0xFF;
+            //DataBuffer[BRIGHT_MSB] = bright32 >> 8;
+            //DataBuffer[BRIGHT_LSB] = bright32 & 0xFF;
             if (bright32 < THRESHOLD)
             {
                 ADC_StopConvert();
@@ -66,14 +63,15 @@ CY_ISR_PROTO(Custom_ADC_ISR)
                     intensity32 = 0;
                 
                 PWM_WriteCompare((intensity32)/257);
-                DataBuffer[POT_MSB] = intensity32 >> 8;
-                DataBuffer[POT_LSB] = intensity32 & 0xFF;
+                //DataBuffer[POT_MSB] = intensity32 >> 8;
+                //DataBuffer[POT_LSB] = intensity32 & 0xFF;
   
             }
             else
             {
-                DataBuffer[POT_MSB] = 0x00;
-                DataBuffer[POT_LSB] = 0x00;
+                //DataBuffer[POT_MSB] = 0x00;
+                //DataBuffer[POT_LSB] = 0x00;
+                intensity32 = 0; //se funza metti come define
                 PWM_WriteCompare(0);
                 
             }
