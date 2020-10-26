@@ -20,10 +20,12 @@ int main(void)
     CyGlobalIntEnable; /* Enable global interrupts. */
     UART_Start();
     CLK_PWM_Start();
+    CLK_TIMER_Start();
     PWM_Start();
     ADC_Start();
+    TIMER_Start();
     ISR_UART_StartEx(Custom_UART_ISR);
-    ISR_PWM_StartEx(Custom_ADC_ISR);
+    ISR_TIMER_StartEx(Custom_ADC_ISR);
 
 
     for(;;)

@@ -42,49 +42,40 @@ CY_ISR(Custom_UART_ISR)
 
 CY_ISR_PROTO(Custom_ADC_ISR)
 {
-    PWM_ReadStatusRegister();
-    adc_clock ++;
-    //UART_PutChar('a');
-    /*switch (adc_clock)
+    TIMER_ReadStatusRegister();
+    switch(uart_status)
     {
-        case ONE_SEC:
+        case UART_RX_START:
             ADC_StopConvert();
             MUX_Select(PHOTORESISTOR);
             ADC_StartConvert();
-            brightness = ADC_Read8();
-            if (brightness > 65535)
-                brightness = 65535;
-            if (brightness < 0)
-                brightness = 0;
-            brightness_mv = ADC_CountsTo_mVolts(brightness);
-            UART_PutChar(brightness_mv);
-            adc_clock = 0;
+            bright32 = ADC_Read32();
+            if (bright32 > 65535)
+                bright32 = 65535;
+            if (bright32 < 0)
+                bright32 = 0;
+            bright16 = bright32 & 0xFFFF;
+            if (bright16 < 30000)
+            {
+                ADC_StopConvert();
+                MUX_Select(POTENTIOMETER);
+                ADC_StartConvert();
+                intensity32 = ADC_Read32();
+                if (intensity32 > 65535)
+                    intensity32 = 65535;
+                if (intensity32 < 0)
+                    intensity32 = 0;
+                //intensity16 = intensity32 & 0xFFFF;
+                PWM_WriteCompare((intensity32 & 0xFFFF)/257);
+            }
+            else
+            PWM_WriteCompare(0);
             break;
-    }*/
-    ADC_StopConvert();
-    MUX_Select(PHOTORESISTOR);
-    ADC_StartConvert();
-    bright32 = ADC_Read32();
-    if (bright32 > 65535)
-        bright32 = 65535;
-    if (bright32 < 0)
-        bright32 = 0;
-    bright16 = bright32 & 0xFFFF;
-    if (bright16 < 0x4E20)
-    {
-        ADC_StopConvert();
-        MUX_Select(POTENTIOMETER);
-        ADC_StartConvert();
-        intensity32 = ADC_Read32();
-        if (intensity32 > 65535)
-            intensity32 = 65535;
-        if (intensity32 < 0)
-            intensity32 = 0;
-        //intensity16 = intensity32 & 0xFFFF;
-        PWM_WriteCompare(intensity32 & 0xFFFF);
+        case UART_RX_STOP:
+            PWM_WriteCompare(0);
+           
+            break;
     }
-    else
-    PWM_WriteCompare(0);
     
         
         
