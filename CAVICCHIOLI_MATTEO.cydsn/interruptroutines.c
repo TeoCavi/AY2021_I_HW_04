@@ -14,9 +14,6 @@
 #include "project.h"
 #include "stdio.h"
 
-int32 bright32;
-int32 intensity32;
-
 CY_ISR(Custom_UART_ISR)
 {
     uint8 recived = UART_ReadRxData();
@@ -31,7 +28,6 @@ CY_ISR(Custom_UART_ISR)
         case 'S':
             uart_status = UART_RX_STOP;
             UART_LED_Write(OFF);
-            // come sopra
             break;
         default:
             break;
@@ -41,20 +37,21 @@ CY_ISR(Custom_UART_ISR)
 CY_ISR_PROTO(Custom_ADC_ISR)
 {
     TIMER_ReadStatusRegister();
-    adc_clock = 1;
+    adc_clock = ADC___ENABLED;
     switch(uart_status)
     {
         case UART_RX_START:
+        
             ADC_StopConvert();
             MUX_Select(PHOTORESISTOR);
             ADC_StartConvert();
             bright32 = ADC_Read32();
-            if (bright32 > 65535)    
-                bright32 = 65535;
-            if (bright32 < 0)
-                bright32 = 0;
-            DataBuffer[BRIGHT_MSB] = bright32 >> 8;
-            DataBuffer[BRIGHT_LSB] = bright32 & 0xFF;
+            
+            if (bright32 > ADC_MAX)    
+                bright32 = ADC_MAX;
+            if (bright32 < ADC_MIN)
+                bright32 = ADC_MIN;
+            
             if (bright32 < THRESHOLD)
             {
                 ADC_StopConvert();
@@ -62,27 +59,22 @@ CY_ISR_PROTO(Custom_ADC_ISR)
                 ADC_StartConvert();
                 intensity32 = ADC_Read32();
                 
-                if (intensity32 > 65535)
-                    intensity32 = 65535;
-                if (intensity32 < 0)
-                    intensity32 = 0;
+                if (intensity32 > ADC_MAX)
+                    intensity32 = ADC_MAX;
+                if (intensity32 < ADC_MIN)
+                    intensity32 = ADC_MIN;
                 
                 PWM_WriteCompare((intensity32)/257);
-                DataBuffer[POT_MSB] = intensity32 >> 8;
-                DataBuffer[POT_LSB] = intensity32 & 0xFF;
-  
             }
             else
             {
-                DataBuffer[POT_MSB] = 0x00;
-                DataBuffer[POT_LSB] = 0x00;
-                PWM_WriteCompare(0);
-                
+                intensity32 = OFF;
+                PWM_WriteCompare(OFF);
             }
             break;
-
+            
         case UART_RX_STOP:
-            PWM_WriteCompare(0);
+            PWM_WriteCompare(OFF);
             break;
     }
     
