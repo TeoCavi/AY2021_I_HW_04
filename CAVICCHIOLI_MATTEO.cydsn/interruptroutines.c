@@ -25,10 +25,12 @@ CY_ISR(Custom_UART_ISR)
         case 'b':
         case 'B':
             uart_status = UART_RX_START;
+            UART_LED_Write(ON);
             break;
         case 's':
         case 'S':
             uart_status = UART_RX_STOP;
+            UART_LED_Write(OFF);
             // come sopra
             break;
         default:

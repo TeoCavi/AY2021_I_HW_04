@@ -15,6 +15,8 @@
     
     #include "cytypes.h"
     
+    #define ON 1
+    #define OFF 0
     #define POTENTIOMETER 1
     #define PHOTORESISTOR 0
     #define UART_RX_START 1
