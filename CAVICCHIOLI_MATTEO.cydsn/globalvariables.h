@@ -18,13 +18,13 @@
 #define UART_RX_START 1
 #define UART_RX_STOP 0
 #define ADC___DISABLED 0
-#define ADC___ENABLED 1
+#define HUNDRED_MS 10
 #define ADC_MAX 65535
 #define ADC_MIN 0
+#define PWM_FROM_16_TO_8 257 //aggiunta per risparmio di UDB
 #define THRESHOLD 30000
-#define THRESHOLD_MSB 0x75;
-#define THRESHOLD_LSB 0x30;
 #define BYTES_TO_SEND 6
+#define HEAD 0
 #define BRIGHT_MSB 1
 #define BRIGHT_LSB 2
 #define POT_MSB 3
@@ -33,8 +33,8 @@
 #define T_HOLD_LSB 6
 #define TRANSMIT_BUFFER_SIZE 8
 
-int32 bright32;
-int32 intensity32;
+int32 sumbright32;
+int32 sumintensity32;
 uint8 DataBuffer[TRANSMIT_BUFFER_SIZE];
 
 /* [] END OF FILE */

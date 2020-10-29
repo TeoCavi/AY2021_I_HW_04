@@ -14,6 +14,10 @@
 #include "project.h"
 #include "stdio.h"
 
+
+int32 bright32;
+int32 intensity32;
+
 CY_ISR(Custom_UART_ISR)
 {
     uint8 recived = UART_ReadRxData();
@@ -23,6 +27,7 @@ CY_ISR(Custom_UART_ISR)
         case 'B':
             uart_status = UART_RX_START;
             UART_LED_Write(ON);
+            StartComponents();
             break;
         case 's':
         case 'S':
@@ -37,14 +42,13 @@ CY_ISR(Custom_UART_ISR)
 CY_ISR_PROTO(Custom_ADC_ISR)
 {
     TIMER_ReadStatusRegister();
-    adc_clock = ADC___ENABLED;
+    adc_clock ++;
+    
     switch(uart_status)
     {
         case UART_RX_START:
         
-            ADC_StopConvert();
             MUX_Select(PHOTORESISTOR);
-            ADC_StartConvert();
             bright32 = ADC_Read32();
             
             if (bright32 > ADC_MAX)    
@@ -52,29 +56,27 @@ CY_ISR_PROTO(Custom_ADC_ISR)
             if (bright32 < ADC_MIN)
                 bright32 = ADC_MIN;
             
+            sumbright32 = sumbright32 + bright32;
+            
             if (bright32 < THRESHOLD)
             {
-                ADC_StopConvert();
                 MUX_Select(POTENTIOMETER);
-                ADC_StartConvert();
                 intensity32 = ADC_Read32();
                 
                 if (intensity32 > ADC_MAX)
                     intensity32 = ADC_MAX;
                 if (intensity32 < ADC_MIN)
                     intensity32 = ADC_MIN;
-                
-                PWM_WriteCompare((intensity32)/257);
             }
             else
             {
                 intensity32 = OFF;
-                PWM_WriteCompare(OFF);
             }
+            sumintensity32 = sumintensity32 + intensity32;
             break;
             
         case UART_RX_STOP:
-            PWM_WriteCompare(OFF);
+            StopComponents();
             break;
     }
     

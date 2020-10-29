@@ -9,10 +9,13 @@
  *
  * ========================================
 */
+
 #include "project.h"
 #include "globalvariables.h"
 
 void StartComponents(void);
+
+void StopComponents(void);
 
 void FixedBytesToSend(void);
 

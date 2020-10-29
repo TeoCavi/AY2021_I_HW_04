@@ -14,12 +14,11 @@
     #define __INTERRUPT_ROUTINE_H__
     
     #include "globalvariables.h"
+    #include "driver.h"
     
     volatile uint8 uart_status;
     volatile uint8 adc_clock;
 
-    //uint8 DataBuffer[TRANSMIT_BUFFER_SIZE];
-    
     CY_ISR_PROTO(Custom_UART_ISR);
     CY_ISR_PROTO(Custom_ADC_ISR);
     

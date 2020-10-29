@@ -9,10 +9,10 @@
  *
  * ========================================
 */
+
 #include "project.h"
 #include "interruptroutines.h"
 #include "globalvariables.h"
-#include "driver.h"
 
 volatile uint8 status = UART_RX_STOP;
 volatile uint8 adc_clock = ADC___DISABLED;
@@ -21,20 +21,24 @@ int main(void)
 {
     CyGlobalIntEnable; 
     
-    StartComponents();
-    
+    UART_Start();
     ISR_UART_StartEx(Custom_UART_ISR);
     ISR_TIMER_StartEx(Custom_ADC_ISR);
+    
+    sumbright32 = 0;
+    sumintensity32 = 0;
     
     FixedBytesToSend();
     
     for(;;)
     {
-        if((uart_status == UART_RX_START) && (adc_clock == ADC_ENABLED))
+        if((uart_status == UART_RX_START) && (adc_clock == HUNDRED_MS))
         {
             VariableBytesToSend();
             UART_PutArray(DataBuffer,TRANSMIT_BUFFER_SIZE);
-            adc_clock = 0;
+            sumbright32 = 0;
+            sumintensity32 = 0;
+            adc_clock = 0; 
         }
     }
 }
