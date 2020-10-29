@@ -1,19 +1,21 @@
 /* ========================================
  *
- * Copyright YOUR COMPANY, THE YEAR
+ * Copyright LTEBS, 29/10/2020
  * All Rights Reserved
  * UNPUBLISHED, LICENSED SOFTWARE.
  *
  * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
+ * WHICH IS THE PROPERTY OF LTEBS.
  *
  * ========================================
 */
 #include "driver.h"
 
+//static variables used to compute locally the mean and assign it to relative DataBuffer adress
 static uint32 meanbright32;
 static uint32 meanintensity32;
 
+//start of CLK, PWM, TIMER, ADC
 void StartComponents()
 {
     CLK_PWM_Start();
@@ -23,6 +25,7 @@ void StartComponents()
     TIMER_Start();
 }
 
+//stop of CLK, PWM, TIMER, ADC
 void StopComponents()
 {
     CLK_PWM_Stop();
@@ -32,6 +35,7 @@ void StopComponents()
     TIMER_Stop();
 }
 
+//writing fixed value inside DataBuffer
 void FixedBytesToSend()
 {
     DataBuffer[HEAD] = 0xA0;
@@ -40,6 +44,7 @@ void FixedBytesToSend()
     DataBuffer[T_HOLD_LSB] = THRESHOLD & 0xFF;
 }
 
+//writing mean inside DataBuffer and write PWM compare to control led intensity
 void VariableBytesToSend()
 {
     meanbright32 = sumbright32/10;
